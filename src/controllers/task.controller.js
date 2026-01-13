@@ -1,6 +1,6 @@
 import { db } from "../db/connection.js";
 
-// Recupero tutte le tasks
+// Recupero tutte le tasks /GET
 export async function getAllTasks(req, res) {
   try {
     //Faccio la query per recuperare tutte le tasks
@@ -14,16 +14,25 @@ export async function getAllTasks(req, res) {
   }
 }
 
-// // Recupero una task
-// export async function getSingleTask(req, res) {
-//   try {
-//     const [tasks] = await db.query("SELCET FROM tasks WHERE id = ?", [id]);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
+// Recupero una task /SHOW
+export async function getTaskById(req, res) {
+  try {
+    const { id } = req.params;
 
-// Creo una nuova task
+    const [rows] = await db.query("SELECT * FROM tasks WHERE id = ?", [id]);
+
+    // Verifico che esista una task con quell'id
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Task non trovata" });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Errore nel recupero della task" });
+  }
+}
+
+// Creo una nuova task /CREATE
 export async function createTask(req, res) {
   try {
     const { title, status } = req.body;
@@ -48,7 +57,7 @@ export async function createTask(req, res) {
   }
 }
 
-// Elimino una task tramite id
+// Elimino una task tramite id /DELETE
 export async function deleteTask(req, res) {
   try {
     const { id } = req.params;
@@ -69,7 +78,7 @@ export async function deleteTask(req, res) {
   }
 }
 
-// Aggiorno una task tramite id
+// Aggiorno una task tramite id /PUT-UPDATE
 export async function updateTask(req, res) {
   try {
     const { id } = req.params;
